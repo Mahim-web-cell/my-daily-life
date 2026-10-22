@@ -1,0 +1,10 @@
+{
+  "name": "My Daily Life",
+  "short_name": "Daily Life",
+  "description": "Daily reminders, Quran reading and duas",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fbfaf6",
+  "theme_color": "#123d32",
+  "icons": []
+}

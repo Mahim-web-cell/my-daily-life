@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#123d32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
+<title>My Daily Life</title>
+<style>
+:root{--green:#123d32;--mint:#e8f4ee;--paper:#fbfaf6;--ink:#18231f;--muted:#68756e;--line:#dfe7e1}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:var(--green);color:white;padding:24px 18px 18px;border-radius:0 0 24px 24px}
+header h1{margin:0 0 6px;font-size:25px}header p{margin:0;color:#d7e9df;font-size:14px}
+main{max-width:720px;margin:auto;padding:16px 14px 90px}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 18px}
+.tab{border:1px solid var(--line);background:white;padding:12px 4px;border-radius:13px;font-weight:650;color:var(--green)}
+.tab.active{background:var(--green);color:white}
+.panel{display:none}.panel.active{display:block}.card{background:white;border:1px solid var(--line);border-radius:17px;padding:16px;margin:12px 0;box-shadow:0 3px 12px #123d3208}
+h2{font-size:20px;margin:4px 0 12px}h3{margin:0 0 8px;font-size:17px}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 5px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cfdad2;border-radius:11px;background:#fff;font:inherit;color:var(--ink)}
+button{border:0;border-radius:11px;padding:11px 14px;background:var(--green);color:white;font:inherit;font-weight:650;cursor:pointer}
+button.secondary{background:var(--mint);color:var(--green)}button.danger{background:#fff0ed;color:#9a2f22}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.muted{color:var(--muted);font-size:13px}.task{display:flex;gap:10px;align-items:flex-start}.task .info{flex:1;min-width:0}.task.done .task-title{text-decoration:line-through;color:var(--muted)}
+.task-title{font-weight:700;overflow-wrap:anywhere}.task-time{font-size:13px;color:var(--muted);margin-top:4px}.arabic{font-size:27px;line-height:1.9;text-align:right;direction:rtl;margin:12px 0}.translation{line-height:1.6;margin:8px 0}.dua-ar{font-size:24px;direction:rtl;text-align:right;line-height:1.8}.pill{display:inline-block;background:var(--mint);color:var(--green);padding:5px 9px;border-radius:30px;font-size:12px}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fbfaf6ed;border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));text-align:center;color:var(--muted);font-size:12px}
+@media(min-width:600px){main{padding-top:24px}}
+</style>
+</head>
+<body>
+<header><h1>My Daily Life <span style="font-size:18px">☘</span></h1><p id="tagline">Tasks, Quran and daily duas in one place</p></header>
+<main>
+<div class="row" style="margin:14px 0"><div class="muted" id="welcome">Your daily companion</div><select id="language" aria-label="Language" style="max-width:150px"><option value="en">English</option><option value="bn">বাংলা</option></select></div>
+<nav class="tabs">
+<button class="tab active" data-tab="tasks" id="tabTasks">✓ Tasks</button>
+<button class="tab" data-tab="quran" id="tabQuran">☾ Quran</button>
+<button class="tab" data-tab="dua" id="tabDua">♡ Dua</button>
+</nav>
+
+<section class="panel active" id="tasks">
+<div class="card">
+<h2 id="tasksHeading">Daily tasks</h2>
+<p class="muted" id="reminderNote">Set a time. Keep this app open for in-app reminders; background alerts need a push server.</p>
+<form id="taskForm">
+<label id="taskLabel" for="taskName">Task name</label><input id="taskName" required maxlength="140" placeholder="e.g. Read IELTS vocabulary">
+<div class="row"><div><label id="dateLabel" for="taskDate">Date</label><input id="taskDate" type="date" required></div><div><label id="timeLabel" for="taskTime">Reminder time</label><input id="taskTime" type="time" required></div></div>
+<div class="row"><div><label id="repeatLabel" for="repeatEvery">Repeat if not done</label><select id="repeatEvery"><option value="0">No repeat</option><option value="15">Every 15 minutes</option><option value="30">Every 30 minutes</option><option value="60">Every 60 minutes</option></select></div><div style="padding-top:28px"><button type="submit" id="addTask" style="width:100%">+ Add task</button></div></div>
+</form>
+<div class="row" style="margin-top:12px"><button class="secondary" id="enableNotifs" type="button">Enable notifications</button><button class="secondary" id="testAlarm" type="button">Test sound</button></div>
+<p class="muted" id="notifStatus" aria-live="polite"></p>
+</div>
+<div id="taskList"></div>
+</section>
+
+<section class="panel" id="quran">
+<div class="card">
+<h2 id="quranHeading">Quran reader</h2>
+<p class="muted" id="quranNote">Arabic text, Bangla and English meaning, plus recitation audio. Internet connection required.</p>
+<label id="surahLabel" for="surahSelect">Choose Surah</label><select id="surahSelect"><option value="1">1 — Al-Fatihah</option></select>
+<button id="loadSurah" type="button" style="width:100%;margin-top:10px">Load Surah</button>
+<div id="quranStatus" class="muted" style="margin-top:10px" aria-live="polite"></div>
+</div>
+<div id="verses"></div>
+</section>
+
+<section class="panel" id="dua">
+<div class="card"><h2 id="duaHeading">Daily Dua & Dhikr</h2><p class="muted" id="duaNote">A small starter collection. Verify wording and sources with a trusted Quran/Hadith reference before relying on a full collection.</p></div>
+<div class="card"><h3 id="dua1title">Before sleeping</h3><div class="dua-ar">بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا</div><p class="translation"><b id="translit1label">বাংলা উচ্চারণ:</b> বিসমিকা আল্লাহুম্মা আমূতু ওয়া আহইয়া।</p><p class="translation" id="dua1meaning">Meaning: In Your name, O Allah, I die and I live.</p><span class="pill">Sahih al-Bukhari</span></div>
+<div class="card"><h3 id="dua2title">On waking up</h3><div class="dua-ar">الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ</div><p class="translation"><b id="translit2label">বাংলা উচ্চারণ:</b> আলহামদু লিল্লাহিল্লাযী আহইয়ানা বা‘দা মা আমাতানা ওয়া ইলাইহিন নুশূর।</p><p class="translation" id="dua2meaning">Meaning: Praise be to Allah who gave us life after causing us to die, and to Him is the resurrection.</p><span class="pill">Sahih al-Bukhari</span></div>
+<div class="card"><h3 id="dua3title">Before eating</h3><div class="dua-ar">بِسْمِ اللَّهِ</div><p class="translation"><b id="translit3label">বাংলা উচ্চারণ:</b> বিসমিল্লাহ।</p><p class="translation" id="dua3meaning">Meaning: In the name of Allah.</p></div>
+</section>
+</main>
+<footer id="footerNote">Starter version • Tasks are saved on this device</footer>
+<script>
+const $=id=>document.getElementById(id);
+let lang=localStorage.getItem('mdl_lang')||'en';
+let tasks=JSON.parse(localStorage.getItem('mdl_tasks')||'[]');
+const copy={
+en:{tagline:"Tasks, Quran and daily duas in one place",welcome:"Your daily companion",tasks:"✓ Tasks",quran:"☾ Quran",dua:"♡ Dua",tasksHeading:"Daily tasks",reminderNote:"Set a time. Keep this app open for in-app reminders; background alerts need a push server.",taskLabel:"Task name",dateLabel:"Date",timeLabel:"Reminder time",repeatLabel:"Repeat if not done",addTask:"+ Add task",enableNotifs:"Enable notifications",testAlarm:"Test sound",quranHeading:"Quran reader",quranNote:"Arabic text, Bangla and English meaning, plus recitation audio. Internet connection required.",surahLabel:"Choose Surah",loadSurah:"Load Surah",duaHeading:"Daily Dua & Dhikr",duaNote:"A small starter collection. Verify wording and sources with a trusted Quran/Hadith reference before relying on a full collection.",dua1title:"Before sleeping",dua2title:"On waking up",dua3title:"Before eating",translit1label:"Bangla pronunciation:",translit2label:"Bangla pronunciation:",translit3label:"Bangla pronunciation:",dua1meaning:"Meaning: In Your name, O Allah, I die and I live.",dua2meaning:"Meaning: Praise be to Allah who gave us life after causing us to die, and to Him is the resurrection.",dua3meaning:"Meaning: In the name of Allah.",footerNote:"Starter version • Tasks are saved on this device",taskPlaceholder:"e.g. Read IELTS vocabulary",noTasks:"No tasks yet. Add your first task above.",done:"Done ✓",undo:"Undo",delete:"Delete",completed:"Completed",pending:"Pending",enableOk:"Notification permission granted (if supported).",enableNo:"Notifications are unavailable or permission was denied.",notifDenied:"Allow notifications in iPhone Settings if available.",soundReady:"Test sound played.",surahLoading:"Loading Surah…",surahError:"Could not load Quran data. Check your internet and try again.",play:"▶ Play recitation",audioMissing:"Audio link not available.",verse:"Ayah",english:"English",bangla:"বাংলা অর্থ",repeatDue:"Reminder: ",alarmBody:"You still have this task to do.",taskAdded:"Task added.",noAudio:"Audio could not be played in this browser.",surahNames:["Al-Fatihah","Al-Baqarah","Ali 'Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Tawbah","Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha"]},
+bn:{tagline:"কাজ, কুরআন ও দৈনন্দিন দোয়া—এক জায়গায়",welcome:"আপনার দৈনন্দিন সঙ্গী",tasks:"✓ কাজ",quran:"☾ কুরআন",dua:"♡ দোয়া",tasksHeading:"দৈনন্দিন কাজ",reminderNote:"সময় সেট করুন। অ্যাপ খোলা থাকলে রিমাইন্ডার কাজ করবে; বন্ধ অবস্থায় নির্ভরযোগ্য অ্যালার্টের জন্য পুশ সার্ভার লাগবে।",taskLabel:"কাজের নাম",dateLabel:"তারিখ",timeLabel:"রিমাইন্ডারের সময়",repeatLabel:"কাজ শেষ না হলে আবার",addTask:"+ কাজ যোগ করুন",enableNotifs:"নোটিফিকেশন চালু করুন",testAlarm:"সাউন্ড পরীক্ষা",quranHeading:"কুরআন পাঠ",quranNote:"আরবি, বাংলা ও ইংরেজি অর্থ এবং তিলাওয়াতের অডিও। ইন্টারনেট লাগবে।",surahLabel:"সূরা বেছে নিন",loadSurah:"সূরা দেখুন",duaHeading:"দৈনিক দোয়া ও যিকির",duaNote:"এটি প্রাথমিক নমুনা সংগ্রহ। পূর্ণ সংগ্রহে ব্যবহারের আগে নির্ভরযোগ্য কুরআন/হাদিস সূত্রে শব্দ ও সূত্র যাচাই করুন।",dua1title:"ঘুমানোর আগে",dua2title:"ঘুম থেকে ওঠার পর",dua3title:"খাওয়ার আগে",translit1label:"বাংলা উচ্চারণ:",translit2label:"বাংলা উচ্চারণ:",translit3label:"বাংলা উচ্চারণ:",dua1meaning:"অর্থ: হে আল্লাহ, আপনার নামেই আমি মৃত্যুবরণ করি এবং জীবিত হই।",dua2meaning:"অর্থ: সব প্রশংসা আল্লাহর, যিনি আমাদের মৃত্যুর পর জীবিত করেছেন; আর তাঁর কাছেই পুনরুত্থান।",dua3meaning:"অর্থ: আল্লাহর নামে।",footerNote:"প্রাথমিক সংস্করণ • কাজগুলো এই ডিভাইসে সংরক্ষিত",taskPlaceholder:"যেমন: IELTS শব্দ পড়া",noTasks:"এখনো কোনো কাজ নেই। উপরে প্রথম কাজটি যোগ করুন।",done:"সম্পন্ন ✓",undo:"ফিরিয়ে আনুন",delete:"মুছুন",completed:"সম্পন্ন",pending:"বাকি",enableOk:"নোটিফিকেশন অনুমতি দেওয়া হয়েছে (সমর্থিত হলে)।",enableNo:"নোটিফিকেশন নেই অথবা অনুমতি দেওয়া হয়নি।",notifDenied:"সম্ভব হলে iPhone Settings থেকে নোটিফিকেশন অনুমতি দিন।",soundReady:"সাউন্ড পরীক্ষা করা হয়েছে।",surahLoading:"সূরা লোড হচ্ছে…",surahError:"কুরআনের তথ্য লোড হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",play:"▶ তিলাওয়াত শুনুন",audioMissing:"অডিও লিংক পাওয়া যায়নি।",verse:"আয়াত",english:"English",bangla:"বাংলা অর্থ",repeatDue:"রিমাইন্ডার: ",alarmBody:"এই কাজটি এখনো বাকি আছে।",taskAdded:"কাজ যোগ হয়েছে।",noAudio:"এই ব্রাউজারে অডিও চালানো যায়নি।",surahNames:["আল-ফাতিহা","আল-বাকারা","আলে ইমরান","আন-নিসা","আল-মায়িদা","আল-আনআম","আল-আ'রাফ","আল-আনফাল","আত-তাওবা","ইউনুস","হুদ","ইউসুফ","আর-রা'দ","ইবরাহিম","আল-হিজর","আন-নাহল","আল-ইসরা","আল-কাহফ","মারইয়াম","ত্বা-হা"]}
+};
+function t(k){return copy[lang][k]||copy.en[k]||k}
+function setLang(v){lang=v;localStorage.setItem('mdl_lang',v);$('language').value=v;
+$('tagline').textContent=t('tagline');$('welcome').textContent=t('welcome');$('tabTasks').textContent=t('tasks');$('tabQuran').textContent=t('quran');$('tabDua').textContent=t('dua');
+['tasksHeading','reminderNote','taskLabel','dateLabel','timeLabel','repeatLabel','addTask','enableNotifs','testAlarm','quranHeading','quranNote','surahLabel','loadSurah','duaHeading','duaNote','dua1title','dua2title','dua3title','translit1label','translit2label','translit3label','dua1meaning','dua2meaning','dua3meaning','footerNote'].forEach(id=>{if($(id))$(id).textContent=t(id)});
+$('taskName').placeholder=t('taskPlaceholder');renderTasks();populateSurahs();}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab));}));
+$('language').addEventListener('change',e=>setLang(e.target.value));
+$('taskDate').value=new Date().toLocaleDateString('en-CA');
+function saveTasks(){localStorage.setItem('mdl_tasks',JSON.stringify(tasks));}
+function renderTasks(){const root=$('taskList');root.innerHTML='';if(!tasks.length){root.innerHTML='<div class="card muted">'+t('noTasks')+'</div>';return;}
+tasks.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).forEach(task=>{const c=document.createElement('div');c.className='card task'+(task.done?' done':'');const info=document.createElement('div');info.className='info';const title=document.createElement('div');title.className='task-title';title.textContent=task.name;const meta=document.createElement('div');meta.className='task-time';meta.textContent=task.date+' • '+task.time+' • '+(task.done?t('completed'):t('pending'));info.append(title,meta);const actions=document.createElement('div');actions.style.display='grid';actions.style.gap='6px';const done=document.createElement('button');done.className='secondary';done.textContent=task.done?t('undo'):t('done');done.onclick=()=>{task.done=!task.done;saveTasks();renderTasks();};const del=document.createElement('button');del.className='danger';del.textContent=t('delete');del.onclick=()=>{tasks=tasks.filter(x=>x.id!==task.id);saveTasks();renderTasks();};actions.append(done,del);c.append(info,actions);root.append(c);});}
+$('taskForm').addEventListener('submit',e=>{e.preventDefault();const task={id:Date.now(),name:$('taskName').value.trim(),date:$('taskDate').value,time:$('taskTime').value,repeat:Number($('repeatEvery').value),done:false,lastReminder:0};if(!task.name)return;tasks.push(task);saveTasks();renderTasks();$('taskName').value='';$('notifStatus').textContent=t('taskAdded');scheduleNext(task);});
+let timers={};
+function scheduleNext(task){if(timers[task.id])clearTimeout(timers[task.id]);if(task.done)return;const target=new Date(task.date+'T'+task.time).getTime();const delay=target-Date.now();if(delay<0)return;timers[task.id]=setTimeout(()=>{notifyTask(task);},delay);}
+function notifyTask(task){if(task.done)return;const title=t('repeatDue')+task.name;try{if('Notification'in window&&Notification.permission==='granted'){new Notification(title,{body:t('alarmBody'),tag:'task-'+task.id});}}catch(e){}playTone();if(task.repeat>0){timers[task.id]=setTimeout(()=>notifyTask(task),task.repeat*60*1000);}else{$('notifStatus').textContent=title;}}
+function playTone(){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880;g.gain.value=.12;o.connect(g);g.connect(c.destination);o.start();setTimeout(()=>{o.stop();c.close()},450);}catch(e){}}
+$('enableNotifs').addEventListener('click',async()=>{if(!('Notification'in window)){$('notifStatus').textContent=t('enableNo');return;}try{const p=await Notification.requestPermission();$('notifStatus').textContent=p==='granted'?t('enableOk'):t('enableNo');}catch(e){$('notifStatus').textContent=t('enableNo');}});
+$('testAlarm').addEventListener('click',()=>{playTone();$('notifStatus').textContent=t('soundReady');});
+function populateSurahs(){const sel=$('surahSelect');const keep=sel.value||'1';sel.innerHTML='';const namesEn=["Al-Fatihah","Al-Baqarah","Ali 'Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Tawbah","Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha","Al-Anbiya","Al-Hajj","Al-Mu'minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-Ankabut","Ar-Rum","Luqman","As-Sajdah","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar","Ghafir","Fussilat","Ash-Shura","Az-Zukhruf","Ad-Dukhan","Al-Jathiyah","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf","Adh-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqi'ah","Al-Hadid","Al-Mujadila","Al-Hashr","Al-Mumtahanah","As-Saff","Al-Jumu'ah","Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqah","Al-Ma'arij","Nuh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyamah","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","Abasa","At-Takwir","Al-Infitar","Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiyah","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Ad-Duha","Ash-Sharh","At-Tin","Al-Alaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah","Al-Adiyat","Al-Qari'ah","At-Takathur","Al-Asr","Al-Humazah","Al-Fil","Quraysh","Al-Ma'un","Al-Kawthar","Al-Kafirun","An-Nasr","Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"];namesEn.forEach((n,i)=>{const o=document.createElement('option');o.value=i+1;o.textContent=(i+1)+' — '+(lang==='bn'?(copy.bn.surahNames[i]||n):n);sel.append(o)});sel.value=keep;}
+async function loadSurah(){const n=$('surahSelect').value,root=$('verses');root.innerHTML='';$('quranStatus').textContent=t('surahLoading');try{const urls=[`https://api.alquran.cloud/v1/surah/${n}/quran-uthmani`,`https://api.alquran.cloud/v1/surah/${n}/bn.bengali`,`https://api.alquran.cloud/v1/surah/${n}/en.sahih`,`https://api.alquran.cloud/v1/surah/${n}/ar.alafasy`];const results=await Promise.all(urls.map(u=>fetch(u).then(r=>{if(!r.ok)throw Error('API');return r.json()})));const [ar,bn,en,audio]=results;$('quranStatus').textContent=ar.data.englishName+' • '+ar.data.numberOfAyahs+' ayahs';ar.data.ayahs.forEach((v,i)=>{const card=document.createElement('div');card.className='card';const num=document.createElement('span');num.className='pill';num.textContent=t('verse')+' '+v.numberInSurah;const arab=document.createElement('div');arab.className='arabic';arab.textContent=v.text;const b=document.createElement('p');b.className='translation';b.innerHTML='<b>'+t('bangla')+':</b> ';b.append(document.createTextNode(bn.data.ayahs[i].text));const enp=document.createElement('p');enp.className='translation';enp.innerHTML='<b>'+t('english')+':</b> ';enp.append(document.createTextNode(en.data.ayahs[i].text));const play=document.createElement('button');play.className='secondary';play.textContent=t('play');play.onclick=()=>{const url=audio.data.ayahs[i]?.audio;if(!url){alert(t('audioMissing'));return;}const ael=new Audio(url);ael.play().catch(()=>alert(t('noAudio')));};card.append(num,arab,b,enp,play);root.append(card);});}catch(e){$('quranStatus').textContent=t('surahError');}}
+$('loadSurah').addEventListener('click',loadSurah);$('surahSelect').addEventListener('change',()=>{});
+setLang(lang);renderTasks();tasks.forEach(scheduleNext);
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body>
+</html>
